@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>跑团活动详情</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "微软雅黑", sans-serif;
+        }
+        body {
+            background: #f0f2f5;
+            padding: 40px;
+        }
+        .back-btn {
+            padding: 12px 25px;
+            border: none;
+            cursor: pointer;
+            border-radius: 25px;
+            background: rgba(255,255,255,0.9);
+            backdrop-filter: blur(8px);
+            color: #6366f1;
+            font-weight: 500;
+            transition: all 0.3s;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+            display: inline-block;
+        }
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.2);
+        }
+        .recruit-detail {
+            background: rgba(255,255,255,0.9);
+            backdrop-filter: blur(8px);
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        .recruit-title {
+            font-size: 28px;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(200,200,200,0.2);
+            color: #374151;
+            font-weight: bold;
+        }
+        .recruit-info {
+            margin-bottom: 30px;
+            line-height: 2;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .recruit-info p {
+            font-size: 16px;
+            color: #4b5563;
+        }
+        .recruit-info p strong {
+            color: #374151;
+            font-weight: 600;
+            display: inline-block;
+            width: 100px;
+        }
+        .recruit-content {
+            margin-bottom: 40px;
+            color: #4b5563;
+            line-height: 1.8;
+            font-size: 16px;
+            padding: 25px;
+            background: rgba(99, 102, 241, 0.05);
+            border-radius: 12px;
+        }
+        .recruit-content h3 {
+            font-size: 20px;
+            color: #374151;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+        .recruit-opt {
+            display: flex;
+            gap: 20px;
+        }
+        .recruit-opt button {
+            padding: 15px 35px;
+            border: none;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: #fff;
+            cursor: pointer;
+            border-radius: 12px;
+            transition: all 0.3s;
+            font-size: 16px;
+            font-weight: 500;
+        }
+        .recruit-opt button:last-child {
+            background: #f3f4f6;
+            color: #4b5563;
+        }
+        .recruit-opt button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <!-- 返回按钮 -->
+    <button class="back-btn" onclick="window.location.href='index.html'">← 返回主页面</button>
+
+    <div class="recruit-detail">
+        <div class="recruit-title">废弃医院之谜</div>
+        <div class="recruit-info">
+            <p><strong>规则类型：</strong>CoC 7版</p>
+            <p><strong>主持人：</strong>主持人A</p>
+            <p><strong>活动时间：</strong>2025-11-05 19:00-22:00</p>
+            <p><strong>活动地点：</strong>线上（腾讯会议：123-456-789）</p>
+            <p><strong>活动时长：</strong>3小时</p>
+            <p><strong>参与人数：</strong>5/6（剩余1位）</p>
+        </div>
+        <div class="recruit-content">
+            <h3>活动内容</h3>
+            <p>你所在的城市近期发生多起“失踪案”，所有失踪者最后出现的地点都是城郊的废弃医院。作为调查员，你们收到匿名委托，需要潜入医院探索真相——这里似乎藏着超越常理的秘密，而你们的每一个选择，都可能影响最终的结局...</p>
+            <p>模组亮点：<br>
+            1. 多结局分支，根据调查进度解锁不同剧情；<br>
+            2. 内置“san值检测”互动机制，增强沉浸感；<br>
+            3. 主持人将提供定制化线索道具（线上共享文档）。</p>
+        </div>
+        <div class="recruit-opt">
+            <button>确认预约</button>
+            <button>取消预约</button>
+        </div>
+    </div>
+</body>
+</html>

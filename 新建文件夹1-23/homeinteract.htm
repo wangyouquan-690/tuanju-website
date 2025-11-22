@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>家园互动</title>
+    <style>
+        * {margin: 0;padding: 0;box-sizing: border-box;}
+        body {background-color: #f0f0f0;}
+        .container {width: 1280px;height: 720px;margin: 0 auto;background-image: url("D:/忘忧泉小程序实验室/家园背景.jpg");background-size: cover;position: relative;}
+        .header {position: absolute;top: 20px;left: 20px;right: 20px;display: flex;justify-content: space-between;align-items: center;color: #fff;}
+        .back-btn {width: 120px;height: 40px;background-color: #007bff;border: none;border-radius: 8px;color: #fff;font-size: 16px;cursor: pointer;}
+        .back-btn:hover {background-color: #0056b3;}
+        
+        /* 互动主按钮 */
+        .main-interact-btn {position: absolute;top: 50%;left: 50%;transform: translate(-50%, -50%);width: 200px;height: 200px;border-radius: 50%;background-color: rgba(255,255,255,0.2);display: flex;align-items: center;justify-content: center;cursor: pointer;transition: all 0.3s;}
+        .main-interact-btn:hover {background-color: rgba(255,255,255,0.4);transform: translate(-50%, -50%) scale(1.05);}
+        .main-interact-btn span {font-size: 24px;color: #fff;font-weight: bold;}
+        
+        /* 互动弹窗（默认隐藏） */
+        .interact-modal {position: fixed;top: 0;left: 0;width: 100%;height: 100%;background-color: rgba(0,0,0,0.7);display: none;align-items: center;justify-content: center;z-index: 10;}
+        .modal-content {width: 600px;height: 400px;background-color: #fff;border-radius: 10px;padding: 30px;display: flex;flex-wrap: wrap;gap: 20px;justify-content: center;align-items: center;}
+        .modal-option {width: 150px;height: 150px;border-radius: 50%;background-color: #28a745;display: flex;flex-direction: column;align-items: center;justify-content: center;cursor: pointer;transition: all 0.3s;}
+        .modal-option:hover {transform: scale(1.1);}
+        .option-icon {width: 60px;height: 60px;margin-bottom: 10px;}
+        .option-name {font-size: 18px;color: #fff;font-weight: bold;}
+        .close-modal {position: absolute;top: 20px;right: 20px;width: 40px;height: 40px;border-radius: 50%;background-color: #ff3333;color: #fff;border: none;font-size: 20px;cursor: pointer;}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>我的专属家园</h1>
+            <button class="back-btn" onclick="window.location.href='A现代养成游戏-我是“权”能王主界面.htm'">返回主界面</button>
+        </div>
+        <!-- 主互动按钮 -->
+        <div class="main-interact-btn" onclick="openModal()">
+            <span>家园互动</span>
+        </div>
+    </div>
+
+    <!-- 互动弹窗 -->
+    <div class="interact-modal" id="interactModal">
+        <button class="close-modal" onclick="closeModal()">×</button>
+        <div class="modal-content">
+            <!-- 陪伴妹妹 -->
+            <div class="modal-option" onclick="interactWithSister()">
+                <div class="option-icon">
+                    <!-- 妹妹图标（CSS绘制） -->
+                    <svg viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="30" cy="15" r="10" fill="#fff"/>
+                        <path d="M25 25L35 25" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+                        <path d="M20 35L40 35" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+                        <path d="M25 45L35 45" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </div>
+                <div class="option-name">陪伴妹妹</div>
+            </div>
+            <!-- 打理花园 -->
+            <div class="modal-option" onclick="tendGarden()">
+                <div class="option-icon">
+                    <!-- 花园图标（CSS绘制） -->
+                    <svg viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="30" cy="30" r="20" fill="#28a745"/>
+                        <path d="M20 25L25 15L30 25L35 15L40 25" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+                        <path d="M25 35L30 45L35 35" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </div>
+                <div class="option-name">打理花园</div>
+            </div>
+            <!-- 秘密基地 -->
+            <div class="modal-option" onclick="goToSecretBase()">
+                <div class="option-icon">
+                    <!-- 秘密基地图标（CSS绘制） -->
+                    <svg viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="10" y="15" width="40" height="30" rx="5" fill="#666"/>
+                        <path d="M20 5L30 15L40 5" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+                        <rect x="25" y="25" width="10" height="15" fill="#fff"/>
+                    </svg>
+                </div>
+                <div class="option-name">秘密基地</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 初始化属性数据
+        let characterAttrs = JSON.parse(localStorage.getItem('characterAttrs')) || {
+            programming: 120,
+            eloquence: 150,
+            medical: 90,
+            physical: 180,
+            inspiration: 230,
+            popularity: 2634
+        };
+        // 妹妹心情数据
+        let sisterMood = parseInt(localStorage.getItem('sisterMood')) || 0;
+
+        // 打开弹窗
+        function openModal() {
+            document.getElementById('interactModal').style.display = 'flex';
+        }
+        // 关闭弹窗
+        function closeModal() {
+            document.getElementById('interactModal').style.display = 'none';
+        }
+
+        // 陪伴妹妹逻辑
+        function interactWithSister() {
+            sisterMood += 20;
+            characterAttrs.inspiration += 5;
+            localStorage.setItem('sisterMood', sisterMood);
+            localStorage.setItem('characterAttrs', JSON.stringify(characterAttrs));
+            alert(`陪伴妹妹成功！妹妹心情+20（当前：${sisterMood}），你的灵感+5`);
+            closeModal();
+        }
+
+        // 打理花园逻辑
+        function tendGarden() {
+            characterAttrs.physical += 5;
+            characterAttrs.popularity += 10;
+            localStorage.setItem('characterAttrs', JSON.stringify(characterAttrs));
+            alert(`打理花园成功！体能+5，人气+10`);
+            closeModal();
+        }
+
+        // 跳转秘密基地（修改：先关闭弹窗再跳转）
+        function goToSecretBase() {
+            closeModal(); // 关闭弹窗
+            window.location.href = 'secretbase.htm'; // 跳转到秘密基地页面
+        }
+    </script>
+</body>
+</html>

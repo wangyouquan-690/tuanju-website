@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>宠物的专属房间</title>
+  <style>
+    /* 页面背景容器 */
+    .room-container {
+      position: relative;
+      width: 1000px;
+      height: 600px;
+      background: url("宠物房间背景.jpg") no-repeat;
+      background-size: cover;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    /* 特效开关（保持在右侧上方，和返回按钮同排） */
+    .effect-switch {
+      position: absolute;
+      top: 20px;
+      right: 120px;
+      color: #fff;
+      font-size: 14px;
+      background: rgba(0,0,0,0.7);
+      padding: 5px 10px;
+      border-radius: 4px;
+      z-index: 10;
+    }
+
+    /* 当前状态面板 */
+    .status-panel {
+      width: 180px;
+      height: 300px;
+      background: rgba(0,0,0,0.7);
+      color: #fff;
+      padding: 10px;
+      border-radius: 8px;
+      float: left;
+      margin-right: 20px;
+      margin-top: 60px; /* 大幅下移，避开按钮区域 */
+    }
+
+    /* 灵宠容器（进一步缩小+下移） */
+    .pet-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(2, 1fr);
+      gap: 12px;
+      width: 650px; /* 宽度缩小 */
+      height: 450px; /* 高度缩小 */
+      float: left;
+      margin-top: 60px; /* 大幅下移，和状态面板对齐 */
+    }
+
+    /* 灵宠卡片（进一步缩小尺寸） */
+    .pet-card {
+      width: 180px; /* 比之前缩小约10% */
+      height: 200px; /* 比之前缩小约10% */
+      background: rgba(0,0,0,0.8);
+      border-radius: 8px;
+      padding: 8px;
+      color: #fff;
+      text-align: center;
+      position: relative;
+    }
+
+    /* 灵宠头像容器（同步缩小） */
+    .pet-avatar {
+      position: relative;
+      width: 70px; /* 头像缩小到70px */
+      height: 70px;
+      margin: 0 auto 6px;
+    }
+
+    /* 灵宠头像 */
+    .pet-img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    /* 特效容器 */
+    .pet-effect {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    /* 灵宠文字信息（同步缩小字体） */
+    .pet-name {
+      font-size: 14px;
+      font-weight: bold;
+      margin: 4px 0;
+    }
+    .pet-quality {
+      font-size: 11px;
+      color: #f00;
+      margin: 2px 0;
+    }
+    .pet-mood {
+      font-size: 11px;
+      margin: 2px 0;
+    }
+    .pet-buff {
+      font-size: 10px;
+      line-height: 1.2;
+      margin: 4px 0;
+    }
+
+    /* 按钮组（缩小按钮尺寸） */
+    .pet-btn-group {
+      display: flex;
+      gap: 4px;
+      justify-content: center;
+      margin-top: 6px;
+    }
+    .pet-btn {
+      font-size: 10px;
+      padding: 3px 6px;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+
+    /* ========== 灵宠专属特效（适配缩小后的头像） ========== */
+    .pet-card[data-pet="pikacang"] .pet-effect::after {
+      content: '';
+      position: absolute;
+      top: -3px; left: -3px;
+      width: 76px; height: 76px;
+      border-radius: 50%;
+      box-shadow: 0 0 8px #FFFF99;
+      animation: glow 2s infinite alternate;
+    }
+    .pet-card[data-pet="pikahu"] .pet-effect::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      border-radius: 50%;
+      box-shadow: 0 0 7px #DAA520;
+      animation: foxGlow 2s infinite alternate;
+    }
+    .pet-card[data-pet="pikahu"] .pet-img {
+      animation: foxMove 3s infinite ease-in-out;
+    }
+    .pet-card[data-pet="pikacat"] .pet-effect::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,180,80,0.3) 0%, transparent 70%);
+    }
+    .pet-card[data-pet="pikasong"] .pet-img {
+      filter: opacity(0.8) drop-shadow(0 0 4px #9966CC);
+    }
+    .pet-card[data-pet="pikalang"] .pet-effect::after {
+      content: '';
+      position: absolute;
+      top: -4px; left: -4px;
+      width: 78px; height: 78px;
+      border-radius: 50%;
+      box-shadow: 0 0 10px #FFD700;
+      animation: pulse 2s infinite;
+    }
+    .pet-card[data-pet="pikashe"] .pet-effect::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(80,200,255,0.4) 0%, transparent 60%);
+      animation: scale 3s infinite alternate;
+    }
+
+    /* ========== 特效动画 ========== */
+    @keyframes glow {
+      0% { opacity: 0.3; }
+      100% { opacity: 0.8; }
+    }
+    @keyframes foxGlow {
+      0% { opacity: 0.4; box-shadow: 0 0 7px #DAA520; }
+      100% { opacity: 0.8; box-shadow: 0 0 10px #FFD700; }
+    }
+    @keyframes foxMove {
+      0% { transform: translateY(0); }
+      50% { transform: translateY(-2px); }
+      100% { transform: translateY(0); }
+    }
+    @keyframes pulse {
+      0% { transform: scale(1); opacity: 0.5; }
+      50% { transform: scale(1.05); opacity: 0.8; }
+      100% { transform: scale(1); opacity: 0.5; }
+    }
+    @keyframes scale {
+      0% { transform: scale(1); }
+      100% { transform: scale(1.03); }
+    }
+
+    /* 特效关闭状态 */
+    .pet-effect-disabled .pet-effect::after,
+    .pet-effect-disabled .pet-img {
+      animation: none !important;
+      filter: none !important;
+      box-shadow: none !important;
+      background: none !important;
+    }
+
+    /* 返回主界面按钮 */
+    .back-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      padding: 8px 15px;
+      background: #4169E1;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      z-index: 10;
+    }
+  </style>
+</head>
+<body>
+  <div class="room-container">
+    <!-- 特效开关（和返回按钮同排，不遮挡） -->
+    <div class="effect-switch">
+      <label><input type="checkbox" id="petEffectSwitch" checked> 开启灵宠特效</label>
+    </div>
+
+    <!-- 返回主界面按钮 -->
+    <button class="back-btn">返回主界面</button>
+
+    <!-- 当前状态面板 -->
+    <div class="status-panel">
+      <h3>当前状态</h3>
+      <p>金币: 87659034000</p >
+      <p>编程: 198</p >
+      <p>口才: 160</p >
+      <p>医术: 302</p >
+      <p>体能: 195</p >
+      <p>灵感: 260</p >
+      <p>人气: 2654</p >
+    </div>
+
+    <!-- 灵宠网格（缩小+下移） -->
+    <div class="pet-grid">
+      <!-- 1. 皮卡苍 -->
+      <div class="pet-card" data-pet="pikacang">
+        <div class="pet-avatar">
+          <img src="宠物-皮卡苍.png" alt="皮卡苍" class="pet-img">
+          <div class="pet-effect"></div>
+        </div>
+        <div class="pet-name">皮卡苍</div>
+        <div class="pet-quality">普通宠物</div>
+        <div class="pet-mood">心情: 60</div>
+        <div class="pet-buff">增益: 心情≥80时 编程+10</div>
+        <div class="pet-btn-group">
+          <button class="pet-btn" style="background: #0f0;">喂食(800金币)</button>
+          <button class="pet-btn" style="background: #ff9;">玩耍</button>
+          <button class="pet-btn" style="background: #09f;">清洁</button>
+        </div>
+      </div>
+
+      <!-- 2. 皮卡狐狗 -->
+      <div class="pet-card" data-pet="pikahu">
+        <div class="pet-avatar">
+          <img src="宠物-皮卡狐狗.png" alt="皮卡狐狗" class="pet-img">
+          <div class="pet-effect"></div>
+        </div>
+        <div class="pet-name">皮卡狐狗</div>
+        <div class="pet-quality">普通宠物</div>
+        <div class="pet-mood">心情: 60</div>
+        <div class="pet-buff">增益: 心情≥80时 口才+10</div>
+        <div class="pet-btn-group">
+          <button class="pet-btn" style="background: #0f0;">喂食(700金币)</button>
+          <button class="pet-btn" style="background: #ff9;">玩耍</button>
+          <button class="pet-btn" style="background: #09f;">清洁</button>
+        </div>
+      </div>
+
+      <!-- 3. 皮卡猫 -->
+      <div class="pet-card" data-pet="pikacat">
+        <div class="pet-avatar">
+          <img src="宠物-皮卡猫.png" alt="皮卡猫" class="pet-img">
+          <div class="pet-effect"></div>
+        </div>
+        <div class="pet-name">皮卡猫</div>
+        <div class="pet-quality">普通宠物</div>
+        <div class="pet-mood">心情: 60</div>
+        <div class="pet-buff">增益: 心情≥80时 医术+10</div>
+        <div class="pet-btn-group">
+          <button class="pet-btn" style="background: #0f0;">喂食(750金币)</button>
+          <button class="pet-btn" style="background: #ff9;">玩耍</button>
+          <button class="pet-btn" style="background: #09f;">清洁</button>
+        </div>
+      </div>
+
+      <!-- 4. 皮卡松 -->
+      <div class="pet-card" data-pet="pikasong">
+        <div class="pet-avatar">
+          <img src="宠物-皮卡松.png" alt="皮卡松" class="pet-img">
+          <div class="pet-effect"></div>
+        </div>
+        <div class="pet-name">皮卡松</div>
+        <div class="pet-quality">普通宠物</div>
+        <div class="pet-mood">心情: 60</div>
+        <div class="pet-buff">增益: 心情≥80时 体能+10</div>
+        <div class="pet-btn-group">
+          <button class="pet-btn" style="background: #0f0;">喂食(650金币)</button>
+          <button class="pet-btn" style="background: #ff9;">玩耍</button>
+          <button class="pet-btn" style="background: #09f;">清洁</button>
+        </div>
+      </div>
+
+      <!-- 5. 皮卡狼 -->
+      <div class="pet-card" data-pet="pikalang">
+        <div class="pet-avatar">
+          <img src="灵宠-皮卡嗷狼.png" alt="皮卡狼" class="pet-img">
+          <div class="pet-effect"></div>
+        </div>
+        <div class="pet-name">皮卡狼</div>
+        <div class="pet-quality">高级灵宠</div>
+        <div class="pet-mood">心情: 60</div>
+        <div class="pet-buff">增益: 心情≥80时 灵感+15</div>
+        <div class="pet-btn-group">
+          <button class="pet-btn" style="background: #0f0;">喂食(1200金币)</button>
+          <button class="pet-btn" style="background: #ff9;">玩耍</button>
+          <button class="pet-btn" style="background: #09f;">清洁</button>
+        </div>
+      </div>
+
+      <!-- 6. 皮卡蛇 -->
+      <div class="pet-card" data-pet="pikashe">
+        <div class="pet-avatar">
+          <img src="灵宠-皮卡蛇.png" alt="皮卡蛇" class="pet-img">
+          <div class="pet-effect"></div>
+        </div>
+        <div class="pet-name">皮卡蛇</div>
+        <div class="pet-quality">高级灵宠</div>
+        <div class="pet-mood">心情: 60</div>
+        <div class="pet-buff">增益: 心情≥80时 人气+15</div>
+        <div class="pet-btn-group">
+          <button class="pet-btn" style="background: #0f0;">喂食(1100金币)</button>
+          <button class="pet-btn" style="background: #ff9;">玩耍</button>
+          <button class="pet-btn" style="background: #09f;">清洁</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 特效开关逻辑
+    const effectSwitch = document.getElementById('petEffectSwitch');
+    const petCards = document.querySelectorAll('.pet-card');
+
+    effectSwitch.addEventListener('change', () => {
+      petCards.forEach(card => {
+        card.classList.toggle('pet-effect-disabled', !effectSwitch.checked);
+      });
+    });
+  </script>
+</body>
+</html>

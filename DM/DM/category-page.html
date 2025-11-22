@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>分类结果页</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "微软雅黑", sans-serif;
+        }
+        body {
+            background: #f0f2f5;
+            padding: 40px;
+        }
+        .back-btn {
+            padding: 12px 25px;
+            border: none;
+            cursor: pointer;
+            border-radius: 25px;
+            background: rgba(255,255,255,0.9);
+            backdrop-filter: blur(8px);
+            color: #6366f1;
+            font-weight: 500;
+            transition: all 0.3s;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+            display: inline-block;
+        }
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.2);
+        }
+        .category-header {
+            background: rgba(255,255,255,0.9);
+            backdrop-filter: blur(8px);
+            padding: 30px;
+            margin-bottom: 40px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        .category-title {
+            font-size: 24px;
+            margin-bottom: 15px;
+            color: #374151;
+            font-weight: bold;
+        }
+        .category-desc {
+            color: #6b7280;
+            font-size: 16px;
+        }
+        .result-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 25px;
+        }
+        .result-card {
+            width: 280px;
+            background: rgba(255,255,255,0.9);
+            backdrop-filter: blur(8px);
+            padding: 25px;
+            border: 1px solid rgba(200,200,200,0.2);
+            cursor: pointer;
+            border-radius: 16px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        .result-card:hover {
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            transform: translateY(-5px);
+        }
+        .result-card h3 {
+            font-size: 18px;
+            color: #374151;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        .result-card p {
+            color: #6b7280;
+            font-size: 15px;
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 返回按钮 -->
+    <button class="back-btn" onclick="window.location.href='index.html'">← 返回主页面</button>
+
+    <div class="category-header">
+        <div class="category-title" id="categoryTitle">分类：CoC规则</div>
+        <div class="category-desc" id="categoryDesc">以下是符合“CoC规则”的主持人/跑团项目</div>
+    </div>
+
+    <div class="result-list" id="resultList">
+        <!-- 结果将通过JS动态渲染 -->
+    </div>
+
+    <script>
+        // 同步主页面的完整数据池（与index.html保持一致）
+        const globalData = {
+            hosts: [
+                { 
+                    name: '主持人A', 
+                    skill: 'CoC', 
+                    intro: '5年CoC主持经验，擅长悬疑/克苏鲁氛围', 
+                    url: 'host-page.html' 
+                },
+                { 
+                    name: '主持人B', 
+                    skill: 'DND', 
+                    intro: '职业DND主持人，风格轻松欢乐', 
+                    url: 'host-page.html' 
+                },
+                { 
+                    name: '主持人C', 
+                    skill: '其他', 
+                    intro: '全能型主持人，适配非传统模组', 
+                    url: 'host-page.html' 
+                },
+                { 
+                    name: '主持人D', 
+                    skill: 'CoC/DND', 
+                    intro: '双规则联动主持，代表作《跨界迷踪》', 
+                    url: 'host-page.html' 
+                },
+                { 
+                    name: '主持人E', 
+                    skill: '轻松诙谐', 
+                    intro: '搞笑风格，适合新手玩家', 
+                    url: 'host-page.html' 
+                }
+            ],
+            recruits: [
+                { 
+                    name: '废弃医院之谜', 
+                    rule: 'CoC', 
+                    time: '2025-11-05 19:00', 
+                    url: 'recruit-detail.html' 
+                },
+                { 
+                    name: '地下城宝藏', 
+                    rule: 'DND', 
+                    time: '2025-11-06 20:00', 
+                    url: 'recruit-detail.html' 
+                },
+                { 
+                    name: '魔法学院日常', 
+                    rule: '其他', 
+                    time: '2025-11-07 18:30', 
+                    url: 'recruit-detail.html' 
+                },
+                { 
+                    name: '跨界迷踪', 
+                    rule: 'CoC/DND', 
+                    time: '2025-11-08 19:30', 
+                    url: 'recruit-detail.html' 
+                },
+                { 
+                    name: '深海迷航', 
+                    rule: 'CoC', 
+                    time: '2025-11-12 20:00', 
+                    url: 'recruit-detail.html' 
+                }
+            ]
+        };
+
+        // 获取URL参数并处理分类关键词
+        const urlParams = new URLSearchParams(window.location.search);
+        const category = urlParams.get('type') || 'CoC规则';
+        const keyword = category.replace('规则类型：', '').replace('风格：', '').trim();
+
+        // 更新分类标题和描述
+        document.getElementById('categoryTitle').textContent = `分类：${category}`;
+        document.getElementById('categoryDesc').textContent = `以下是符合“${category}”的主持人/跑团项目`;
+
+        // 筛选匹配的数据
+        const resultList = document.getElementById('resultList');
+        const matchedHosts = globalData.hosts.filter(host => 
+            host.skill.includes(keyword)
+        );
+        const matchedRecruits = globalData.recruits.filter(recruit => 
+            recruit.rule.includes(keyword)
+        );
+
+        // 渲染筛选结果
+        let resultHtml = '';
+        if (matchedHosts.length > 0) {
+            matchedHosts.forEach(host => {
+                resultHtml += `
+                    <div class="result-card" onclick="window.location.href='${host.url}'">
+                        <h3>${host.name}</h3>
+                        <p>擅长：${host.skill}</p>
+                        <p>简介：${host.intro}</p>
+                    </div>
+                `;
+            });
+        }
+
+        if (matchedRecruits.length > 0) {
+            matchedRecruits.forEach(recruit => {
+                resultHtml += `
+                    <div class="result-card" onclick="window.location.href='${recruit.url}'">
+                        <h3>${recruit.name}</h3>
+                        <p>规则：${recruit.rule}</p>
+                        <p>时间：${recruit.time}</p>
+                    </div>
+                `;
+            });
+        }
+
+        // 无匹配结果时显示提示
+        if (matchedHosts.length === 0 && matchedRecruits.length === 0) {
+            resultHtml = `<p style="color:#6b7280; font-size:16px; width:100%; text-align:center; padding:50px 0;">暂无符合该分类的内容</p>`;
+        }
+
+        resultList.innerHTML = resultHtml;
+    </script>
+</body>
+</html>

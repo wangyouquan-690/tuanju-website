@@ -1,0 +1,1599 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>团聚 - 跑团平台</title>
+    <!-- 新增：浏览器标签页小图标（favicon） -->
+    <link rel="icon" href="images/favicon.ico" type="image/x-icon">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "微软雅黑", sans-serif;
+        }
+        body {
+            background: #f0f2f5;
+            overflow-x: hidden;
+        }
+        /* 顶部导航栏（新增创建角色+QQ群按钮） */
+        .header {
+            width: 100%;
+            height: 80px;
+            background: rgba(255,255,255,0.9);
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid rgba(200,200,200,0.2);
+            display: flex;
+            align-items: center;
+            padding: 0 40px;
+            position: sticky;
+            top: 0;
+            z-index: 999;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        /* 左上角团聚Logo（图片版，替换原有文字版样式） */
+.logo {
+    width: 120px; /* 可根据你的logo尺寸调整宽度 */
+    height: 40px; /* 可根据你的logo尺寸调整高度 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 20px;
+    cursor: pointer;
+    overflow: hidden; /* 避免图片溢出容器 */
+}
+        /* 新增：创建角色+QQ群按钮（搜索栏左侧） */
+        .header-func {
+            display: flex;
+            gap: 15px;
+            margin-right: 20px;
+        }
+        .func-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: #fff;
+        }
+        .func-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+        .search-area {
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+        .search-input {
+            width: 350px;
+            height: 45px;
+            padding: 0 20px;
+            border: 1px solid rgba(200,200,200,0.3);
+            outline: none;
+            border-radius: 25px 0 0 25px;
+            background: rgba(255,255,255,0.8);
+            transition: all 0.3s;
+        }
+        .search-input:focus {
+            border-color: #6366f1;
+            background: #fff;
+        }
+        .search-btn {
+            width: 50px;
+            height: 45px;
+            border: 1px solid rgba(200,200,200,0.3);
+            border-left: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #fff;
+            border-radius: 0 25px 25px 0;
+            color: #6366f1;
+            font-size: 18px;
+        }
+        .filter-btn {
+            width: 100px;
+            height: 45px;
+            border: 1px solid rgba(200,200,200,0.3);
+            margin-left: 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #fff;
+            border-radius: 25px;
+            color: #4b5563;
+            transition: all 0.3s;
+        }
+        .filter-btn:hover {
+            background: #f3f4f6;
+            color: #6366f1;
+        }
+        .filter-panel {
+            position: absolute;
+            top: 60px;
+            left: 0;
+            width: 220px;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(200,200,200,0.2);
+            padding: 20px;
+            display: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            z-index: 100;
+        }
+        .filter-panel.active {
+            display: block;
+        }
+        .filter-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #374151;
+            margin-bottom: 15px;
+        }
+        .filter-item {
+            margin-bottom: 12px;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 8px;
+            transition: all 0.2s;
+            color: #4b5563;
+        }
+        .filter-item:hover {
+            background: #f3f4f6;
+            color: #6366f1;
+        }
+        .header-nav {
+            margin-left: 40px;
+        }
+        .header-nav a {
+            color: #374151;
+            text-decoration: none;
+            margin: 0 20px;
+            font-size: 15px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .header-nav a:hover {
+            color: #6366f1;
+        }
+        .user-area {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            border: 2px solid #6366f1;
+            margin-right: 10px;
+            cursor: pointer;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: #fff;
+            overflow: hidden;
+            position: relative;
+        }
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .avatar-input {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .user-menu .personal-center {
+            color: #374151;
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .user-menu .personal-center:hover {
+            color: #6366f1;
+        }
+        .user-menu .logout-btn {
+            padding: 8px 18px;
+            border: none;
+            cursor: pointer;
+            border-radius: 20px;
+            background: #f3f4f6;
+            color: #4b5563;
+            font-weight: 500;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+        .user-menu .logout-btn:hover {
+            background: #e5e7eb;
+            color: #6366f1;
+        }
+        .login-btn {
+            padding: 12px 25px;
+            border: none;
+            cursor: pointer;
+            border-radius: 25px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: #fff;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+        /* 登录弹窗（新增手机号注册+验证码流程） */
+        .login-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.4);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .login-box {
+            width: 420px;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(8px);
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+        }
+        .login-title {
+            font-size: 24px;
+            margin-bottom: 30px;
+            text-align: center;
+            color: #374151;
+            font-weight: bold;
+        }
+        /* 登录/注册切换面板 */
+        .auth-panel {
+            display: block;
+        }
+        .register-panel {
+            display: none;
+        }
+        .form-item {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #6b7280;
+            font-weight: 500;
+        }
+        input {
+            width: 100%;
+            height: 50px;
+            padding: 0 20px;
+            border: 1px solid rgba(200,200,200,0.3);
+            border-radius: 12px;
+            outline: none;
+            background: rgba(255,255,255,0.8);
+            transition: all 0.3s;
+        }
+        input:focus {
+            border-color: #6366f1;
+            background: #fff;
+        }
+        .verify-code {
+            display: flex;
+            gap: 10px;
+        }
+        .verify-btn {
+            width: 120px;
+            height: 50px;
+            border: none;
+            border-radius: 12px;
+            background: #f3f4f6;
+            color: #6366f1;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .identity-select {
+            margin: 20px 0;
+            display: flex;
+            align-items: center;
+            gap: 25px;
+            padding-left: 5px;
+        }
+        .identity-select label {
+            margin-right: 8px;
+            font-size: 15px;
+            color: #374151;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+        }
+        .identity-select input {
+            width: 18px;
+            height: 18px;
+            margin-right: 5px;
+        }
+        .admin-pwd-input {
+            display: none;
+        }
+        .form-btns {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+        .form-btns button {
+            padding: 12px 30px;
+            border: none;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: #fff;
+            cursor: pointer;
+            border-radius: 12px;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+        .form-btns button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+        .form-btns button.cancel-btn {
+            background: #fff;
+            color: #4b5563;
+            border: 1px solid rgba(200,200,200,0.3);
+        }
+        .form-btns button.cancel-btn:hover {
+            background: #f3f4f6;
+            box-shadow: none;
+        }
+        .form-links {
+            margin-top: 25px;
+            text-align: center;
+            font-size: 14px;
+        }
+        .form-links a {
+            color: #6366f1;
+            text-decoration: none;
+            margin: 0 10px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        .form-links a:hover {
+            text-decoration: underline;
+        }
+        .form-links p {
+            margin-top: 12px;
+            color: #9ca3af;
+            font-size: 12px;
+        }
+        /* 广告轮播（本地图片+蓝点标注） */
+        .news-slider {
+            width: 90%;
+            height: 320px;
+            background: rgba(255,255,255,0.9);
+            backdrop-filter: blur(8px);
+            margin: 30px auto;
+            position: relative;
+            overflow: hidden;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        .slider-wrapper {
+            display: flex;
+            height: 100%;
+            transition: transform 0.5s ease;
+        }
+        .slider-item {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #374151;
+            /* 本地背景图片（替换为实际路径） */
+            background-image: url('images/ad1.jpg');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+        /* 广告2本地图片 */
+        .slider-item:nth-child(2) {
+            background-image: url('images/ad2.jpg');
+        }
+        /* 广告3本地图片 */
+        .slider-item:nth-child(3) {
+            background-image: url('images/ad3.jpg');
+        }
+        .slider-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 50px;
+            height: 50px;
+            border: none;
+            background: rgba(255,255,255,0.8);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10;
+            border-radius: 50%;
+            transition: all 0.2s;
+            color: #6366f1;
+            font-size: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .slider-arrow:hover {
+            background: #fff;
+            color: #8b5cf6;
+        }
+        .arrow-left {
+            left: 20px;
+        }
+        .arrow-right {
+            right: 20px;
+        }
+        .more-news {
+            position: absolute;
+            bottom: 25px;
+            right: 25px;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: #fff;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        .more-news:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+        /* 新增：广告轮播点（蓝点当前/小灰点其他） */
+        .slider-dots {
+            position: absolute;
+            bottom: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            z-index: 10;
+        }
+        .slider-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #ccc; /* 小灰点 */
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .slider-dot.active {
+            background: #6366f1; /* 蓝点当前 */
+            transform: scale(1.2);
+        }
+        /* 推荐主持人（头像左上角+标签化+上滑属性） */
+        .host-recommend {
+            width: 90%;
+            margin: 0 auto 50px;
+        }
+        .section-title {
+            font-size: 26px;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(200,200,200,0.2);
+            color: #374151;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+        .section-title::after {
+            content: "";
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border-radius: 2px;
+            margin-left: 15px;
+        }
+        .host-list {
+            display: flex;
+            gap: 25px;
+            flex-wrap: wrap;
+        }
+        .host-card {
+            width: 260px;
+            height: 320px;
+            background: rgba(255,255,255,0.9);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(200,200,200,0.2);
+            padding: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            position: relative;
+            overflow: hidden;
+        }
+        .host-card:hover {
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            transform: translateY(-5px);
+        }
+        /* 主持人头像（左上角露出+可更换本地图片） */
+        .host-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            position: absolute;
+            top: -20px;
+            left: -20px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: #fff;
+            font-size: 24px;
+            border: 3px solid #fff;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            cursor: pointer;
+        }
+        .host-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .host-avatar-input {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+        .host-name {
+            text-align: center;
+            font-size: 18px;
+            margin: 40px 0 15px; /* 给左上角头像留空间 */
+            color: #374151;
+            font-weight: bold;
+        }
+        /* 移除评分，新增跑团经验+个人特征标签 */
+        .host-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+        .host-tag {
+            font-size: 12px;
+            padding: 4px 12px;
+            border-radius: 12px;
+            background: rgba(99, 102, 241, 0.1);
+            color: #6366f1;
+        }
+        /* 主持人属性（触碰上滑+可滚动） */
+        .host-info {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(8px);
+            padding: 25px;
+            transition: top 0.3s ease;
+            overflow-y: auto; /* 可滚动 */
+            z-index: 10;
+        }
+        .host-card:hover .host-info {
+            top: 0;
+        }
+        .host-info p {
+            font-size: 14px;
+            color: #4b5563;
+            margin-bottom: 12px;
+            line-height: 1.6;
+        }
+        .host-info p strong {
+            color: #374151;
+            font-weight: 600;
+        }
+        /* 征召模块（保留原有） */
+        .recruit-area {
+            width: 90%;
+            margin: 0 auto 60px;
+        }
+        .recruit-list {
+            display: flex;
+            gap: 25px;
+            flex-wrap: wrap;
+        }
+        .recruit-card {
+            width: 320px;
+            height: 220px;
+            background: rgba(255,255,255,0.9);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(200,200,200,0.2);
+            padding: 25px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            border-radius: 16px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        .recruit-card:hover {
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        .recruit-title {
+            font-size: 20px;
+            color: #374151;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+        .recruit-brief {
+            font-size: 14px;
+            color: #6b7280;
+            line-height: 1.5;
+        }
+        .recruit-content {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(8px);
+            padding: 25px;
+            transition: top 0.3s ease;
+            overflow-y: auto;
+        }
+        .recruit-card:hover .recruit-content {
+            top: 0;
+        }
+        .recruit-content p {
+            font-size: 15px;
+            color: #4b5563;
+            margin-bottom: 12px;
+            line-height: 1.6;
+        }
+        .recruit-content p strong {
+            color: #374151;
+            font-weight: 600;
+        }
+        .recruit-opt {
+            margin-top: 20px;
+            display: flex;
+            gap: 15px;
+        }
+        .recruit-opt button {
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.2s;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .recruit-opt button:first-child {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: #fff;
+        }
+        .recruit-opt button:last-child {
+            background: #f3f4f6;
+            color: #4b5563;
+        }
+        .recruit-opt button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+        }
+        /* 底部区域（保留原有） */
+        .footer {
+            width: 100%;
+            height: 180px;
+            background: rgba(255,255,255,0.9);
+            backdrop-filter: blur(8px);
+            border-top: 1px solid rgba(200,200,200,0.2);
+            padding: 40px 5%;
+            margin-top: 50px;
+        }
+        .footer-title {
+            font-size: 18px;
+            color: #374151;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        .footer-links {
+            display: flex;
+            gap: 25px;
+            flex-wrap: wrap;
+        }
+        .footer-links a {
+            color: #6b7280;
+            text-decoration: none;
+            font-size: 15px;
+            transition: all 0.2s;
+        }
+        .footer-links a:hover {
+            color: #6366f1;
+            transform: translateY(-2px);
+        }
+        /* 新增：QQ群弹窗 */
+        .qgroup-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.4);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1001;
+        }
+        .qgroup-box {
+            width: 350px;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(8px);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+            text-align: center;
+        }
+        .qgroup-title {
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: #374151;
+            font-weight: bold;
+        }
+        .qgroup-number {
+            font-size: 24px;
+            color: #6366f1;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        .qgroup-copy {
+            padding: 8px 20px;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: #fff;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .qgroup-close {
+            margin-top: 15px;
+            padding: 8px 20px;
+            border: none;
+            border-radius: 8px;
+            background: #f3f4f6;
+            color: #4b5563;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        /* 移除创建角色弹窗样式（因为改为跳转页面） */
+/* 确保强制静音按钮显示在最上层，不被遮挡 */
+    </style>
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <div class="header">
+    <!-- 替换后的图片logo（核心修改） -->
+    <div class="logo" onclick="window.location.href='index.html'">
+        <img src="团聚-logo.png" alt="团聚跑团平台" style="width: 100%; height: 100%; object-fit: contain; border: none;">
+    </div>
+    <!-- 后面的“创建角色+QQ群按钮”代码不变！ -->
+    <div class="header-func">
+        <a href="character-create.html" class="func-btn">创建角色</a>
+        <button class="func-btn" id="qgroupBtn">QQ群</button>
+    </div>
+        <div class="search-area">
+            <input type="text" class="search-input" placeholder="搜索主持人/跑团项目" id="searchInput">
+            <div class="search-btn" id="searchBtn">🔍</div>
+            <div class="filter-btn" id="filterBtn">分类筛选</div>
+            <div class="filter-panel" id="filterPanel">
+                <div class="filter-title">规则类型</div>
+                <div class="filter-item" data-type="规则类型：CoC">CoC</div>
+                <div class="filter-item" data-type="规则类型：DND">DND</div>
+                <div class="filter-item" data-type="规则类型：其他">其他</div>
+                <div class="filter-title" style="margin-top:20px;">风格类型</div>
+                <div class="filter-item" data-type="风格：轻松诙谐">轻松诙谐</div>
+                <div class="filter-item" data-type="风格：严肃叙事">严肃叙事</div>
+            </div>
+        </div>
+        <div class="header-nav">
+            <a href="index.html">首页</a>
+        </div>
+        <div class="user-area">
+            <div class="avatar" id="userAvatar">
+                <img id="avatarImg" alt="用户头像" style="display:none;">
+                <span id="avatarText">头像</span>
+                <input type="file" class="avatar-input" id="avatarInput" accept="image/*">
+            </div>
+            <div class="user-menu" id="userMenu" style="display:none;">
+                <a href="user-page.html" class="personal-center">个人中心</a>
+                <button class="logout-btn" id="logoutBtn">退出登录</button>
+            </div>
+            <div class="login-btn" id="loginBtn">登录/注册</div>
+        </div>
+    </div>
+
+    <!-- 新增：QQ群弹窗 -->
+    <div class="qgroup-modal" id="qgroupModal">
+        <div class="qgroup-box">
+            <div class="qgroup-title">跑团平台官方QQ群</div>
+            <div class="qgroup-number">5946362178</div>
+            <button class="qgroup-copy" id="qgroupCopy">复制群号</button>
+            <button class="qgroup-close" id="qgroupClose">关闭</button>
+        </div>
+    </div>
+
+    <!-- 移除创建角色弹窗（因为改为跳转页面） -->
+
+    <!-- 登录弹窗（含手机号注册+验证码） -->
+    <div class="login-modal" id="loginModal">
+        <div class="login-box">
+            <!-- 登录面板 -->
+            <div class="auth-panel" id="authPanel">
+                <div class="login-title">账号登录</div>
+                <div class="form-item">
+                    <label for="loginAccount">账号（手机号）</label>
+                    <input type="text" id="loginAccount" placeholder="请输入手机号">
+                </div>
+                <div class="form-item">
+                    <label for="loginPwd">密码</label>
+                    <input type="password" id="loginPwd" placeholder="请输入密码">
+                </div>
+                <div class="identity-select">
+                    <label>
+                        <input type="radio" name="identity" value="host"> 主持人
+                    </label>
+                    <label>
+                        <input type="radio" name="identity" value="admin"> 管理员
+                    </label>
+                    <label>
+                        <input type="radio" name="identity" value="player"> 玩家
+                    </label>
+                </div>
+                <div class="form-item admin-pwd-input" id="adminPwdInput">
+                    <label for="adminPwd">管理员密码</label>
+                    <input type="password" id="adminPwd" placeholder="请输入管理员密码">
+                </div>
+                <div class="form-btns">
+                    <button type="button" id="loginSubmit">登录</button>
+                    <button type="button" class="cancel-btn" id="closeLogin">关闭</button>
+                </div>
+                <div class="form-links">
+                    <a id="goToRegister">还没账号？立即注册</a>
+                    <a href="#">忘记密码</a>
+                    <p>登录或注册即同意用户协议</p>
+                </div>
+            </div>
+            <!-- 注册面板 -->
+            <div class="register-panel" id="registerPanel">
+                <div class="login-title">手机号注册</div>
+                <div class="form-item">
+                    <label for="regAccount">手机号</label>
+                    <input type="text" id="regAccount" placeholder="请输入手机号">
+                </div>
+                <div class="form-item verify-code">
+                    <div>
+                        <label for="verifyCode">验证码</label>
+                        <input type="text" id="verifyCode" placeholder="请输入验证码">
+                    </div>
+                    <button type="button" class="verify-btn" id="getVerifyCode">获取验证码</button>
+                </div>
+                <div class="form-item">
+                    <label for="regPwd">设置密码</label>
+                    <input type="password" id="regPwd" placeholder="请设置6-16位密码">
+                </div>
+                <div class="form-btns">
+                    <button type="button" id="regSubmit">完成注册</button>
+                    <button type="button" class="cancel-btn" id="goToLogin">返回登录</button>
+                </div>
+                <div class="form-links">
+                    <p>注册即同意用户协议</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 广告轮播（本地图片+轮播点） -->
+    <!-- 广告轮播（5条广告：4图+1视频+点击跳转+透明箭头） -->
+<!-- 广告轮播（视频首屏+横版+两侧阴影+自动轮播）- 整个.news-slider区块 -->
+<!-- 广告轮播（强制横版+视频首屏+两侧阴影）- 替换原.news-slider区块 -->↓
+<!-- 广告轮播（视频有声循环+不自动跳过+静音按钮+强制横版）- 替换原.news-slider区块 -->
+<!-- 广告轮播（视频首屏+横版+静音按钮） -->
+<div class="news-slider" style="width: 90%; height: 450px; background: rgba(255,255,255,0.9); backdrop-filter: blur(8px); margin: 30px auto; position: relative; overflow: hidden; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08);">
+    <!-- 两侧阴影层 -->
+    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; background: linear-gradient(to right, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0) 8%, rgba(0,0,0,0) 92%, rgba(0,0,0,0.15) 100%); z-index: 5;"></div>
+    
+    <!-- 轮播轨道 -->
+    <div class="slider-wrapper" id="sliderWrapper" style="display: flex; height: 100%; transition: transform 0.5s ease; width: 500%;">
+        <!-- 视频广告、图片广告等内容不变！ -->
+        <a href="ad-link5.html" class="slider-item" style="width: 20%; height: 100%; display: block; position: relative;">
+            <video src="跑团广告视频.mp4" id="mainAdVideo" alt="广告视频" style="width: 100%; height: 100%; object-fit: cover; border: none; object-position: center;" loop playsinline>
+                您的浏览器不支持视频播放
+            </video>
+        </a>
+        <!-- 其他4个图片广告不变... -->
+    </div>
+
+    <!-- 核心修改：静音按钮放在这里！与slider-wrapper同级，在轮播容器最外层 -->
+    <!-- 静音按钮（初始隐藏，触碰视频时显示） -->
+<button id="muteBtn" style="position: absolute; top: 20px; right: 50px; width: 50px; height: 50px; border-radius: 50%; background: #000; color: #fff; border: 3px solid #fff; cursor: pointer; z-index: 999; font-size: 20px; opacity: 0; /* 初始隐藏 */ transition: opacity 0.3s ease; /* 平滑过渡 */ pointer-events: none;">🔊</button>
+
+    <!-- 左右箭头（位置不变） -->
+    <div class="slider-arrow arrow-left" id="arrowLeft" style="opacity: 0.5; z-index: 10;">←</div>
+    <div class="slider-arrow arrow-right" id="arrowRight" style="opacity: 0.5; z-index: 10;">→</div>
+
+    <!-- 轮播点（位置不变） -->
+    <div class="slider-dots" id="sliderDots" style="z-index: 10;">
+        <div class="slider-dot active" data-index="0"></div>
+        <div class="slider-dot" data-index="1"></div>
+        <div class="slider-dot" data-index="2"></div>
+        <div class="slider-dot" data-index="3"></div>
+        <div class="slider-dot" data-index="4"></div>
+    </div>
+</div>
+    <!-- 推荐主持人（优化后） -->
+    <div class="host-recommend">
+        <div class="section-title">编辑推荐主持人</div>
+        <div class="host-list">
+            <!-- 主持人1 -->
+            <div class="host-card" data-id="1">
+                <div class="host-avatar">
+                    <img src="images/host1.jpg" alt="主持人A头像">
+                    <input type="file" class="host-avatar-input" accept="image/*" data-id="1">
+                </div>
+                <div class="host-name">主持人A</div>
+                <!-- 跑团经验+个人特征标签 -->
+                <div class="host-tags">
+                    <span class="host-tag">CoC 7版</span>
+                    <span class="host-tag">5年经验</span>
+                    <span class="host-tag">悬疑氛围</span>
+                    <span class="host-tag">模组改编</span>
+                </div>
+                <!-- 上滑属性（可滚动） -->
+                <div class="host-info">
+                    <p><strong>带团时间：</strong>1200小时</p>
+                    <p><strong>擅长模组：</strong>《旧神低语》《迷雾小镇》《深海疑云》</p>
+                    <p><strong>风格特点：</strong>擅长营造克苏鲁悬疑氛围，剧情分支丰富，支持玩家自由探索</p>
+                    <p><strong>近期排期：</strong>11.10 19:00-22:00（CoC模组《废弃医院》）、11.12 20:00-23:00（自定义模组）</p>
+                    <p><strong>玩家评价：</strong>氛围代入感强，规则把控灵活，新手友好</p>
+                </div>
+            </div>
+            <!-- 主持人2 -->
+            <div class="host-card" data-id="2">
+                <div class="host-avatar">
+                    <img src="images/host2.jpg" alt="主持人B头像">
+                    <input type="file" class="host-avatar-input" accept="image/*" data-id="2">
+                </div>
+                <div class="host-name">主持人B</div>
+                <div class="host-tags">
+                    <span class="host-tag">DND 5E</span>
+                    <span class="host-tag">3年经验</span>
+                    <span class="host-tag">轻松欢乐</span>
+                    <span class="host-tag">趣味支线</span>
+                </div>
+                <div class="host-info">
+                    <p><strong>带团时间：</strong>980小时</p>
+                    <p><strong>擅长模组：</strong>《地下城宝藏》《精灵森林奇遇》《王国保卫战》</p>
+                    <p><strong>风格特点：</strong>剧情轻松诙谐，支线任务趣味十足，支持玩家整活互动</p>
+                    <p><strong>近期排期：</strong>11.11 15:00-18:00（DND《魔法商店之谜》）、11.13 19:30-22:30（线下跑团）</p>
+                    <p><strong>玩家评价：</strong>气氛活跃，NPC人设有趣，新手入门首选</p>
+                </div>
+            </div>
+            <!-- 主持人3 -->
+            <div class="host-card" data-id="3">
+                <div class="host-avatar">
+                    <img src="images/host3.jpg" alt="主持人C头像">
+                    <input type="file" class="host-avatar-input" accept="image/*" data-id="3">
+                </div>
+                <div class="host-name">主持人C</div>
+                <div class="host-tags">
+                    <span class="host-tag">多规则适配</span>
+                    <span class="host-tag">2年经验</span>
+                    <span class="host-tag">无限流</span>
+                    <span class="host-tag">定制内容</span>
+                </div>
+                <div class="host-info">
+                    <p><strong>带团时间：</strong>850小时</p>
+                    <p><strong>擅长模组：</strong>《都市怪谈合集》《无限世界穿梭》《末日生存战》</p>
+                    <p><strong>风格特点：</strong>风格灵活多变，可根据玩家偏好定制剧情难度与类型</p>
+                    <p><strong>近期排期：</strong>11.14 18:30-21:30（无限流《时空裂缝》）、11.16 20:00-23:00（都市怪谈）</p>
+                    <p><strong>玩家评价：</strong>适配度高，能满足不同玩家需求，剧情逻辑性强</p>
+                </div>
+            </div>
+            <!-- 主持人4 -->
+            <div class="host-card" data-id="4">
+                <div class="host-avatar">
+                    <img src="images/host4.jpg" alt="主持人D头像">
+                    <input type="file" class="host-avatar-input" accept="image/*" data-id="4">
+                </div>
+                <div class="host-name">主持人D</div>
+                <div class="host-tags">
+                    <span class="host-tag">CoC+DND</span>
+                    <span class="host-tag">6年经验</span>
+                    <span class="host-tag">双规联动</span>
+                    <span class="host-tag">高难度</span>
+                </div>
+                <div class="host-info">
+                    <p><strong>带团时间：</strong>1500小时</p>
+                    <p><strong>擅长模组：</strong>《跨界迷踪》《神之战场》《维度崩坏》</p>
+                    <p><strong>风格特点：</strong>精通双规则联动设计，剧情难度偏高，适合资深玩家挑战</p>
+                    <p><strong>近期排期：</strong>11.15 19:00-22:30（《跨界迷踪2》）、11.17 14:00-17:30（高难模组测试）</p>
+                    <p><strong>玩家评价：</strong>规则理解透彻，剧情宏大，硬核玩家最爱</p>
+                </div>
+            </div>
+            <!-- 主持人5 -->
+            <div class="host-card" data-id="5">
+                <div class="host-avatar">
+                    <img src="images/host5.jpg" alt="主持人E头像">
+                    <input type="file" class="host-avatar-input" accept="image/*" data-id="5">
+                </div>
+                <div class="host-name">主持人E</div>
+                <div class="host-tags">
+                    <span class="host-tag">自定义规则</span>
+                    <span class="host-tag">2年经验</span>
+                    <span class="host-tag">喜剧风格</span>
+                    <span class="host-tag">新手友好</span>
+                </div>
+                <div class="host-info">
+                    <p><strong>带团时间：</strong>720小时</p>
+                    <p><strong>擅长模组：</strong>《魔法学院日常》《小镇喜剧人》《奇葩冒险队》</p>
+                    <p><strong>风格特点：</strong>主打“跑团+喜剧”结合，剧情无厘头，无战斗压力</p>
+                    <p><strong>近期排期：</strong>11.18 19:00-22:00（《魔法学院开学季》）、11.20 18:00-21:00（新手教学局）</p>
+                    <p><strong>玩家评价：</strong>全程爆笑，新手容易上手，适合放松娱乐</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 征召模块 -->
+    <div class="recruit-area">
+        <div class="section-title">热门跑团征召</div>
+        <div class="recruit-list">
+            <div class="recruit-card" data-id="1">
+                <div class="recruit-title">废弃医院之谜</div>
+                <div class="recruit-brief">CoC | 悬疑 | 线上 | 19:00-22:00</div>
+                <div class="recruit-content">
+                    <p><strong>规则：</strong>CoC 7版</p>
+                    <p><strong>主持人：</strong>主持人A</p>
+                    <p><strong>时间：</strong>2025-11-05 19:00-22:00</p>
+                    <p><strong>地点：</strong>线上（腾讯会议：123-456-789）</p>
+                    <p><strong>内容：</strong>城市近期频发失踪案，所有线索指向城郊废弃医院。作为调查员，你们将潜入医院，揭开隐藏在阴影中的秘密...</p>
+                    <div class="recruit-opt">
+                        <button>确认预约</button>
+                        <button>取消预约</button>
+                    </div>
+                </div>
+            </div>
+            <div class="recruit-card" data-id="2">
+                <div class="recruit-title">地下城宝藏</div>
+                <div class="recruit-brief">DND | 冒险 | 线下 | 20:00-23:00</div>
+                <div class="recruit-content">
+                    <p><strong>规则：</strong>DND 5E</p>
+                    <p><strong>主持人：</strong>主持人B</p>
+                    <p><strong>时间：</strong>2025-11-06 20:00-23:00</p>
+                    <p><strong>地点：</strong>线下（XX咖啡馆·桌游区）</p>
+                    <p><strong>内容：</strong>王国发布悬赏令，寻找失落的地下城宝藏。你们将组成冒险小队，挑战怪物、破解机关，争夺最终的宝藏...</p>
+                    <div class="recruit-opt">
+                        <button>确认预约</button>
+                        <button>取消预约</button>
+                    </div>
+                </div>
+            </div>
+            <div class="recruit-card" data-id="3">
+                <div class="recruit-title">魔法学院日常</div>
+                <div class="recruit-brief">其他 | 欢乐 | 线上 | 18:30-21:30</div>
+                <div class="recruit-content">
+                    <p><strong>规则：</strong>自定义魔法学院规则</p>
+                    <p><strong>主持人：</strong>主持人E</p>
+                    <p><strong>时间：</strong>2025-11-07 18:30-21:30</p>
+                    <p><strong>地点：</strong>线上（Discord频道）</p>
+                    <p><strong>内容：</strong>作为魔法学院新生，你们将体验上课、社团、恶作剧等趣味日常，还有隐藏的学院秘密等待解锁...</p>
+                    <div class="recruit-opt">
+                        <button>确认预约</button>
+                        <button>取消预约</button>
+                    </div>
+                </div>
+            </div>
+            <div class="recruit-card" data-id="4">
+                <div class="recruit-title">跨界迷踪</div>
+                <div class="recruit-brief">CoC/DND | 联动 | 线上 | 19:30-22:30</div>
+                <div class="recruit-content">
+                    <p><strong>规则：</strong>CoC+DND 混合规则</p>
+                    <p><strong>主持人：</strong>主持人D</p>
+                    <p><strong>时间：</strong>2025-11-08 19:30-22:30</p>
+                    <p><strong>地点：</strong>线上（Zoom会议室）</p>
+                    <p><strong>内容：</strong>DND世界突然出现克苏鲁生物，你们需要同时运用DND的战斗能力和CoC的调查技巧，阻止维度崩坏...</p>
+                    <div class="recruit-opt">
+                        <button>确认预约</button>
+                        <button>取消预约</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部区域 -->
+    <div class="footer">
+        <div class="footer-title">相关链接</div>
+        <div class="footer-links">
+            <a href="#">感谢名单</a>
+            <a href="#">加入我们</a>
+            <a href="#">联系我们</a>
+            <a href="#">举报</a>
+            <a href="#">合作伙伴链接</a>
+        </div>
+    </div>
+
+    <script>
+        // 原有基础功能JS（保留不要变）
+        // 分类筛选弹窗
+        const filterBtn = document.getElementById('filterBtn');
+        const filterPanel = document.getElementById('filterPanel');
+        filterBtn.addEventListener('click', () => {
+            filterPanel.classList.toggle('active');
+        });
+        const filterItems = document.querySelectorAll('.filter-item');
+        filterItems.forEach(item => {
+            item.addEventListener('click', () => {
+                const category = item.getAttribute('data-type');
+                window.location.href = `category-page.html?type=${encodeURIComponent(category)}`;
+            });
+        });
+        // 搜索功能
+        const searchInput = document.getElementById('searchInput');
+        const searchBtn = document.getElementById('searchBtn');
+        const search = () => {
+            const keyword = searchInput.value.trim();
+            if (keyword) {
+                window.location.href = `category-page.html?type=${encodeURIComponent(keyword)}`;
+            }
+        };
+        searchBtn.addEventListener('click', search);
+        searchInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') search();
+        });
+      // 新闻轮播（视频优先：播放时不自动切换，支持静音）
+const sliderWrapper = document.getElementById('sliderWrapper');
+const arrowLeft = document.getElementById('arrowLeft');
+const arrowRight = document.getElementById('arrowRight');
+const sliderDots = document.querySelectorAll('.slider-dot');
+const mainAdVideo = document.getElementById('mainAdVideo');
+const muteBtn = document.getElementById('muteBtn');
+let currentSlide = 0;
+const slideCount = 5;
+const slideWidth = 20;
+let autoPlayTimer;
+
+// 初始化视频播放
+mainAdVideo.muted = false;
+mainAdVideo.play().catch(err => {
+    mainAdVideo.muted = true;
+    muteBtn.innerHTML = '🔇';
+    mainAdVideo.play();
+});
+
+// 原有静音功能逻辑（保留不变）
+muteBtn.addEventListener('click', () => {
+    mainAdVideo.muted = !mainAdVideo.muted;
+    muteBtn.innerHTML = mainAdVideo.muted ? '🔇' : '🔊';
+});
+
+// 新增：静音按钮显示/隐藏逻辑（触碰视频时显示，离开隐藏）
+// 触碰视频区域（鼠标移入）：显示按钮
+mainAdVideo.addEventListener('mouseenter', () => {
+    muteBtn.style.opacity = 1; // 显示按钮
+    muteBtn.style.pointerEvents = 'auto'; // 允许点击
+});
+
+// 离开视频区域（鼠标移出）：隐藏按钮
+mainAdVideo.addEventListener('mouseleave', () => {
+    muteBtn.style.opacity = 0; // 隐藏按钮
+    muteBtn.style.pointerEvents = 'none'; // 禁止点击
+});
+
+// 后面的 updateSlider()、startAutoPlay()、箭头点击等函数...（保持不变）
+
+// 更新轮播状态
+function updateSlider() {
+    sliderWrapper.style.transform = `translateX(-${currentSlide * slideWidth}%)`;
+    sliderDots.forEach((dot, index) => {
+        dot.classList.toggle('active', index === currentSlide);
+    });
+
+    // 关键：只有切换到非视频广告（索引≠0），才启动自动轮播；切回视频则暂停
+    if (currentSlide !== 0) {
+        startAutoPlay();
+    } else {
+        clearInterval(autoPlayTimer); // 视频广告时，停止自动轮播
+        mainAdVideo.play(); // 切回视频时继续播放
+    }
+}
+
+// 自动轮播函数（仅非视频广告时生效）
+function startAutoPlay() {
+    clearInterval(autoPlayTimer);
+    autoPlayTimer = setInterval(() => {
+        currentSlide = (currentSlide + 1) % slideCount;
+        updateSlider();
+    }, 3000);
+}
+
+// 手动切换（箭头）
+arrowLeft.addEventListener('click', () => {
+    currentSlide = (currentSlide - 1 + slideCount) % slideCount;
+    updateSlider();
+});
+arrowRight.addEventListener('click', () => {
+    currentSlide = (currentSlide + 1) % slideCount;
+    updateSlider();
+});
+
+// 手动切换（轮播点）
+sliderDots.forEach(dot => {
+    dot.addEventListener('click', () => {
+        currentSlide = parseInt(dot.getAttribute('data-index'));
+        updateSlider();
+    });
+});
+
+// 初始化轮播（停在视频广告，不自动切换）
+updateSlider();
+
+// 箭头hover效果
+arrowLeft.addEventListener('mouseenter', () => arrowLeft.style.opacity = 0.8);
+arrowLeft.addEventListener('mouseleave', () => arrowLeft.style.opacity = 0.5);
+arrowRight.addEventListener('mouseenter', () => arrowRight.style.opacity = 0.8);
+arrowRight.addEventListener('mouseleave', () => arrowRight.style.opacity = 0.5);
+        // 登录相关（新增注册+验证码逻辑）
+        const loginBtn = document.getElementById('loginBtn');
+        const loginModal = document.getElementById('loginModal');
+        const closeLogin = document.getElementById('closeLogin');
+        const identityRadios = document.querySelectorAll('input[name="identity"]');
+        const adminPwdInput = document.getElementById('adminPwdInput');
+        const loginSubmit = document.getElementById('loginSubmit');
+        const userAvatar = document.getElementById('userAvatar');
+        const userMenu = document.getElementById('userMenu');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const avatarImg = document.getElementById('avatarImg');
+        const avatarText = document.getElementById('avatarText');
+        const avatarInput = document.getElementById('avatarInput');
+        // 登录/注册切换
+        const authPanel = document.getElementById('authPanel');
+        const registerPanel = document.getElementById('registerPanel');
+        const goToRegister = document.getElementById('goToRegister');
+        const goToLogin = document.getElementById('goToLogin');
+        const getVerifyCode = document.getElementById('getVerifyCode');
+        const regSubmit = document.getElementById('regSubmit');
+
+        // 页面加载时检查登录状态
+        window.addEventListener('load', () => {
+            const isLogin = localStorage.getItem('isLogin') === 'true';
+            const userAvatarSrc = localStorage.getItem('userAvatar');
+            if (isLogin) {
+                loginBtn.style.display = 'none';
+                userMenu.style.display = 'flex';
+                userAvatar.style.display = 'flex';
+                if (userAvatarSrc) {
+                    avatarImg.src = userAvatarSrc;
+                    avatarImg.style.display = 'block';
+                    avatarText.style.display = 'none';
+                }
+            } else {
+                loginBtn.style.display = 'block';
+                userMenu.style.display = 'none';
+                userAvatar.style.display = 'none';
+            }
+        });
+        // 显示/隐藏管理员密码输入框
+        identityRadios.forEach(radio => {
+            radio.addEventListener('change', () => {
+                adminPwdInput.style.display = radio.value === 'admin' ? 'block' : 'none';
+            });
+        });
+        // 打开登录弹窗
+        loginBtn.addEventListener('click', () => {
+            loginModal.style.display = 'flex';
+        });
+        // 关闭登录弹窗
+        closeLogin.addEventListener('click', () => {
+            loginModal.style.display = 'none';
+        });
+        // 登录逻辑
+        loginSubmit.addEventListener('click', () => {
+            const account = document.getElementById('loginAccount').value;
+            const pwd = document.getElementById('loginPwd').value;
+            const selectedIdentity = document.querySelector('input[name="identity"]:checked')?.value;
+            const adminPwd = document.getElementById('adminPwd').value;
+            if (!account || !pwd || !selectedIdentity) {
+                alert('请填写完整信息');
+                return;
+            }
+            if (selectedIdentity === 'admin' && adminPwd !== '92649687826') {
+                alert('管理员密码错误');
+                return;
+            }
+            localStorage.setItem('isLogin', 'true');
+            localStorage.setItem('userAccount', account);
+            localStorage.setItem('userIdentity', selectedIdentity);
+            loginModal.style.display = 'none';
+            loginBtn.style.display = 'none';
+            userMenu.style.display = 'flex';
+            userAvatar.style.display = 'flex';
+            alert(`登录成功，身份：${selectedIdentity === 'host' ? '主持人' : selectedIdentity === 'admin' ? '管理员' : '玩家'}`);
+        });
+        // 退出登录逻辑
+        logoutBtn.addEventListener('click', () => {
+            localStorage.removeItem('isLogin');
+            localStorage.removeItem('userAccount');
+            localStorage.removeItem('userIdentity');
+            localStorage.removeItem('userAvatar');
+            loginBtn.style.display = 'block';
+            userMenu.style.display = 'none';
+            userAvatar.style.display = 'none';
+            avatarImg.style.display = 'none';
+            avatarText.style.display = 'block';
+            alert('退出登录成功');
+            window.location.reload();
+        });
+        // 更换头像功能
+        avatarInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const imgSrc = event.target.result;
+                    avatarImg.src = imgSrc;
+                    avatarImg.style.display = 'block';
+                    avatarText.style.display = 'none';
+                    localStorage.setItem('userAvatar', imgSrc);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+        // 登录/注册面板切换
+        goToRegister.addEventListener('click', () => {
+            authPanel.style.display = 'none';
+            registerPanel.style.display = 'block';
+        });
+        goToLogin.addEventListener('click', () => {
+            registerPanel.style.display = 'none';
+            authPanel.style.display = 'block';
+        });
+        // 获取验证码逻辑
+        getVerifyCode.addEventListener('click', () => {
+            const regAccount = document.getElementById('regAccount').value;
+            if (!/^1[3-9]\d{9}$/.test(regAccount)) {
+                alert('请输入正确的手机号');
+                return;
+            }
+            let count = 60;
+            getVerifyCode.disabled = true;
+            getVerifyCode.textContent = `重新获取(${count}s)`;
+            const timer = setInterval(() => {
+                count--;
+                getVerifyCode.textContent = `重新获取(${count}s)`;
+                if (count <= 0) {
+                    clearInterval(timer);
+                    getVerifyCode.disabled = false;
+                    getVerifyCode.textContent = '获取验证码';
+                }
+            }, 1000);
+            alert('验证码已发送至您的手机');
+        });
+        // 注册逻辑
+        regSubmit.addEventListener('click', () => {
+            const regAccount = document.getElementById('regAccount').value;
+            const verifyCode = document.getElementById('verifyCode').value;
+            const regPwd = document.getElementById('regPwd').value;
+            if (!/^1[3-9]\d{9}$/.test(regAccount)) {
+                alert('请输入正确的手机号');
+                return;
+            }
+            if (!verifyCode || verifyCode.length !== 6) {
+                alert('请输入6位验证码');
+                return;
+            }
+            if (!regPwd || regPwd.length < 6) {
+                alert('请设置6-16位密码');
+                return;
+            }
+            // 存储注册信息（实际项目需对接后端）
+            localStorage.setItem('userAccount', regAccount);
+            localStorage.setItem('userPwd', regPwd);
+            alert('注册成功！请登录');
+            registerPanel.style.display = 'none';
+            authPanel.style.display = 'block';
+            document.getElementById('loginAccount').value = regAccount;
+        });
+
+        // 主持人数据库初始化（更新标签化数据）
+        const hostDatabase = [
+            {
+                id: 1,
+                name: "主持人A",
+                avatar: "images/host1.jpg",
+                tags: ["CoC 7版", "5年经验", "悬疑氛围", "模组改编"],
+                time: "1200小时",
+                intro: "5年CoC主持经验，擅长营造悬疑/克苏鲁氛围，模组改编能力强"
+            },
+            {
+                id: 2,
+                name: "主持人B",
+                avatar: "images/host2.jpg",
+                tags: ["DND 5E", "3年经验", "轻松欢乐", "趣味支线"],
+                time: "980小时",
+                intro: "职业DND主持人，熟悉3R/5E规则，风格轻松欢乐"
+            },
+            {
+                id: 3,
+                name: "主持人C",
+                avatar: "images/host3.jpg",
+                tags: ["多规则适配", "2年经验", "无限流", "定制内容"],
+                time: "850小时",
+                intro: "全能型主持人，适配《无限流》《都市怪谈》等非传统模组"
+            },
+            {
+                id: 4,
+                name: "主持人D",
+                avatar: "images/host4.jpg",
+                tags: ["CoC+DND", "6年经验", "双规联动", "高难度"],
+                time: "1500小时",
+                intro: "双规则专精主持人，能实现CoC与DND模组的无缝联动"
+            },
+            {
+                id: 5,
+                name: "主持人E",
+                avatar: "images/host5.jpg",
+                tags: ["自定义规则", "2年经验", "喜剧风格", "新手友好"],
+                time: "720小时",
+                intro: "搞笑风格主持人，主打“跑团+喜剧”结合"
+            }
+        ];
+        if (!localStorage.getItem('hostDatabase')) {
+            localStorage.setItem('hostDatabase', JSON.stringify(hostDatabase));
+        }
+        // 主持人卡片点击跳转
+        const hostCards = document.querySelectorAll('.host-card');
+        hostCards.forEach(card => {
+            card.addEventListener('click', () => {
+                const hostId = card.getAttribute('data-id');
+                window.location.href = `host-page.html?id=${hostId}`;
+            });
+        });
+        // 征召活动数据库初始化
+        const recruitDatabase = [
+            {
+                id: 1,
+                title: "废弃医院之谜",
+                brief: "CoC | 悬疑 | 线上 | 19:00-22:00",
+                rule: "CoC 7版",
+                host: "主持人A",
+                hostId: 1,
+                time: "2025-11-05 19:00-22:00",
+                location: "线上（腾讯会议：123-456-789）",
+                content: "城市近期频发失踪案，所有线索指向城郊废弃医院..."
+            },
+            {
+                id: 2,
+                title: "地下城宝藏",
+                brief: "DND | 冒险 | 线下 | 20:00-23:00",
+                rule: "DND 5E",
+                host: "主持人B",
+                hostId: 2,
+                time: "2025-11-06 20:00-23:00",
+                location: "线下（XX咖啡馆·桌游区）",
+                content: "王国发布悬赏令，寻找失落的地下城宝藏..."
+            },
+            {
+                id: 3,
+                title: "魔法学院日常",
+                brief: "其他 | 欢乐 | 线上 | 18:30-21:30",
+                rule: "自定义魔法学院规则",
+                host: "主持人E",
+                hostId: 5,
+                time: "2025-11-07 18:30-21:30",
+                location: "线上（Discord频道）",
+                content: "作为魔法学院新生，你们将体验上课、社团、恶作剧等趣味日常..."
+            },
+            {
+                id: 4,
+                title: "跨界迷踪",
+                brief: "CoC/DND | 联动 | 线上 | 19:30-22:30",
+                rule: "CoC+DND 混合规则",
+                host: "主持人D",
+                hostId: 4,
+                time: "2025-11-08 19:30-22:30",
+                location: "线上（Zoom会议室）",
+                content: "DND世界突然出现克苏鲁生物，你们需要同时运用DND的战斗能力和CoC的调查技巧..."
+            }
+        ];
+        if (!localStorage.getItem('recruitDatabase')) {
+            localStorage.setItem('recruitDatabase', JSON.stringify(recruitDatabase));
+        }
+        // 征召卡片点击跳转
+        const recruitCards = document.querySelectorAll('.recruit-card');
+        recruitCards.forEach(card => {
+            card.addEventListener('click', () => {
+                const recruitId = card.getAttribute('data-id');
+                window.location.href = `recruit-detail.html?id=${recruitId}`;
+            });
+        });
+
+        // 新增：主持人头像更换功能
+        const hostAvatarInputs = document.querySelectorAll('.host-avatar-input');
+        hostAvatarInputs.forEach(input => {
+            input.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                const hostId = input.getAttribute('data-id');
+                const avatarImg = input.parentElement.querySelector('img');
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        avatarImg.src = event.target.result;
+                        // 更新本地存储的主持人头像
+                        const hosts = JSON.parse(localStorage.getItem('hostDatabase'));
+                        const targetHost = hosts.find(h => h.id == hostId);
+                        if (targetHost) {
+                            targetHost.avatar = event.target.result;
+                            localStorage.setItem('hostDatabase', JSON.stringify(hosts));
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        });
+
+        // 新增：QQ群弹窗功能
+        const qgroupBtn = document.getElementById('qgroupBtn');
+        const qgroupModal = document.getElementById('qgroupModal');
+        const qgroupClose = document.getElementById('qgroupClose');
+        const qgroupCopy = document.getElementById('qgroupCopy');
+        qgroupBtn.addEventListener('click', () => {
+            qgroupModal.style.display = 'flex';
+        });
+        qgroupClose.addEventListener('click', () => {
+            qgroupModal.style.display = 'none';
+        });
+        qgroupCopy.addEventListener('click', () => {
+            navigator.clipboard.writeText('5946362178').then(() => {
+                alert('QQ群号已复制！');
+            });
+        });
+        // 点击弹窗外部关闭
+        qgroupModal.addEventListener('click', (e) => {
+            if (e.target === qgroupModal) qgroupModal.style.display = 'none';
+        });
+
+        // 移除创建角色弹窗的JS逻辑（因为改为跳转页面）
+    </script>
+</body>
+</html>

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>外出打工</title>
+    <style>
+        * {margin: 0;padding: 0;box-sizing: border-box;}
+        body {background-color: #f0f0f0;}
+        .container {width: 1280px;height: 720px;margin: 0 auto;background-image: url("D:/忘忧泉小程序实验室/打工页面背景.jpg");background-size: cover;position: relative;}
+        .header {position: absolute;top: 20px;left: 20px;right: 20px;display: flex;justify-content: space-between;align-items: center;color: #fff;}
+        .back-btn {width: 120px;height: 40px;background-color: #007bff;border: none;border-radius: 8px;color: #fff;font-size: 16px;cursor: pointer;}
+        .back-btn:hover {background-color: #0056b3;}
+        .work-list {position: absolute;top: 120px;left: 50%;transform: translateX(-50%);display: flex;flex-wrap: wrap;gap: 30px;justify-content: center;width: 90%;}
+        .work-card {width: 320px;height: 300px;background-color: rgba(0,0,0,0.7);border-radius: 10px;padding: 20px;color: #fff;display: flex;flex-direction: column;justify-content: space-between;}
+        .work-title {font-size: 22px;font-weight: bold;text-align: center;margin-bottom: 15px;}
+        .work-require {font-size: 14px;margin-bottom: 10px;}
+        .work-reward {font-size: 16px;color: #ffd700;margin: 15px 0;}
+        .work-desc {font-size: 13px;color: #ccc;flex-grow: 1;}
+        .work-btn {width: 100%;height: 40px;background-color: #ff6600;border: none;border-radius: 8px;color: #fff;font-size: 16px;cursor: pointer;}
+        .work-btn:hover {background-color: #cc5200;}
+        .work-btn:disabled {background-color: #666;cursor: not-allowed;}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>打工赚钱中心</h1>
+            <button class="back-btn" onclick="window.location.href='A现代养成游戏-我是“权”能王主界面.htm'">返回主界面</button>
+        </div>
+        <div class="work-list">
+            <!-- 程序员兼职 -->
+            <div class="work-card">
+                <div class="work-title">程序员兼职</div>
+                <div class="work-require">要求：编程属性 ≥ 100</div>
+                <div class="work-reward">奖励：金币+1500</div>
+                <div class="work-desc">为企业开发小程序，按需求完成功能模块，考验编程实战能力</div>
+                <button class="work-btn" onclick="doWork('programming', 100, 1500, this.parentElement)">开始打工</button>
+            </div>
+            <!-- 讲师助教 -->
+            <div class="work-card">
+                <div class="work-title">讲师助教</div>
+                <div class="work-require">要求：口才属性 ≥ 120</div>
+                <div class="work-reward">奖励：金币+1200</div>
+                <div class="work-desc">辅助讲师完成课程教学，解答学生疑问，提升课堂效率</div>
+                <button class="work-btn" onclick="doWork('eloquence', 120, 1200, this.parentElement)">开始打工</button>
+            </div>
+            <!-- 社区医生 -->
+            <div class="work-card">
+                <div class="work-title">社区医生</div>
+                <div class="work-require">要求：医术属性 ≥ 80</div>
+                <div class="work-reward">奖励：金币+1300</div>
+                <div class="work-desc">为社区居民提供基础诊疗服务，测量血压、开处方药等</div>
+                <button class="work-btn" onclick="doWork('medical', 80, 1300, this.parentElement)">开始打工</button>
+            </div>
+            <!-- 健身教练 -->
+            <div class="work-card">
+                <div class="work-title">健身教练</div>
+                <div class="work-require">要求：体能属性 ≥ 150</div>
+                <div class="work-reward">奖励：金币+1400</div>
+                <div class="work-desc">指导会员进行科学健身，制定训练计划，监督训练效果</div>
+                <button class="work-btn" onclick="doWork('physical', 150, 1400, this.parentElement)">开始打工</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        // 初始化数据
+        let currentCoin = parseInt(localStorage.getItem('currentCoin')) || 8765920;
+        let characterAttrs = JSON.parse(localStorage.getItem('characterAttrs')) || {
+            programming: 120,
+            eloquence: 150,
+            medical: 90,
+            physical: 180,
+            inspiration: 230,
+            popularity: 2634
+        };
+
+        // 打工逻辑
+        function doWork(attrKey, attrRequire, coinReward, cardElem) {
+            // 检查属性是否达标
+            if (characterAttrs[attrKey] < attrRequire) {
+                alert(`属性不足！${getAttrName(attrKey)}需达到${attrRequire}才能从事该工作`);
+                return;
+            }
+
+            // 加金币
+            currentCoin += coinReward;
+            localStorage.setItem('currentCoin', currentCoin);
+
+            // 提示
+            alert(`打工成功！获得金币+${coinReward}，当前金币：${currentCoin}`);
+            
+            // 冷却机制（15秒）
+            const btn = cardElem.querySelector('.work-btn');
+            btn.disabled = true;
+            btn.innerText = '打工中...(15s)';
+            let countdown = 15;
+            const timer = setInterval(() => {
+                countdown--;
+                btn.innerText = `打工中...(${countdown}s)`;
+                if (countdown <= 0) {
+                    clearInterval(timer);
+                    btn.disabled = false;
+                    btn.innerText = '开始打工';
+                }
+            }, 1000);
+        }
+
+        // 属性名称映射
+        function getAttrName(key) {
+            const map = {
+                programming: '编程',
+                eloquence: '口才',
+                medical: '医术',
+                physical: '体能',
+                inspiration: '灵感',
+                popularity: '人气'
+            };
+            return map[key] || key;
+        }
+    </script>
+</body>
+</html>
